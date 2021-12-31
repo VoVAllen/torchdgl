@@ -1,20 +1,24 @@
 cmake_minimum_required(VERSION 3.15.0)
 project(TorchDGLGraph)
 
-find_package(Torch REQUIRED)
+find_package(Torch PATHS /root/anaconda3/lib/python3.9/site-packages/torch/share/cmake/Torch)
 
-find_library(DGL_LIB_PATH Name dgl PATHS /home/ubuntu/dev/csr/dgl/build)
+find_library(DGL_LIB_PATH Name dgl PATHS /root/dgl/build)
 
 include_directories("include")
-include_directories(third_party/dgl/src/graph)
-include_directories(third_party/dgl/include)
-include_directories(third_party/dgl/third_party/dlpack/include)
-include_directories(third_party/dgl/third_party/dmlc-core/include)
+include_directories(/root/dgl/src/graph)
+include_directories(/root/dgl/include)
+include_directories(/root/dgl/third_party/dlpack/include)
+include_directories(/root/dgl/third_party/dmlc-core/include)
 # Define our library target
 add_library(TorchDGLGraph SHARED src/torch_dgl_graph.cc)
 set(CMAKE_CXX_STANDARD 14)
 # Link against LibTorch
 target_link_libraries(TorchDGLGraph "${TORCH_LIBRARIES}" "${DGL_LIB_PATH}")
+
+add_library(CustomOp SHARED src/custom_op.cc)
+target_link_libraries(CustomOp "${TORCH_LIBRARIES}" "${DGL_LIB_PATH}")
+target_link_libraries(CustomOp -Wl,--no-as-needed TorchDGLGraph)
 
 # add_executable(inference src/infer.cc)
 # message(STATUS "DGLLIB: ${DGL_LIB_PATH}")
